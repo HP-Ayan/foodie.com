@@ -2,28 +2,14 @@
 const { configDotenv } = require('dotenv');
 const express = require('express');
 
-//mongoose lib.
-const mongoose = require('mongoose');
+//consuming models.
 const foodsModel = require('../model/foods.model');
+const db_url = require("../model/dbconnect.config");
+const foodController = require('../controller/food.controller')
 
 //env lib
 const env = require("dotenv").config();
 
-
-
-//connect to local mongoDB database using mongoose orm lib.
-//ORM => Object Relational Mapping here mongoose object will creates the
-//JavaScript query to communicate with mongodb in background.
-//var DB_URL=`mongodb://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@${process.env.HOST}:${process.env.MONGO_PORT}/medicineDB`;
-var DB_URL = `mongodb://${process.env.HOST}:${process.env.MONGO_PORT}/foodsDB`;
-
-mongoose.connect(DB_URL)
-    .then(() => {
-        console.log(`MongoDB connected successfully`);
-    })
-    .catch((error) => {
-        console.log('Error : ' + error);
-    });
 
 
 function generateFoodID() {
@@ -55,9 +41,9 @@ console.log(`Multer is working`);
 foodRouter.get("/all", (req, res) => {
     foodsModel.find().exec()
         .then((foodInfo) => {
-            if (foodInfo.length > 0){
+            if (foodInfo.length > 0) {
                 res.status(200).json(foodInfo);
-            }else{
+            } else {
                 res.status(200).json({ "message": "No food available" })
             }
         })
@@ -118,24 +104,18 @@ foodRouter.get("/limit/:l1/:l2", (req, res) => {
 
 
 //adding one food in the database
-foodRouter.post("/add", singleUpload.single('mAvatar'), (req, res) => {
-    foodsModel.create({
-        "food_id": generateFoodID(),
-        "food_name": req.body.fname,
-        "food_Details": req.body.fdetails,
-        "food_price": req.body.fprice,
-        "food_image": baseURL + "/uploads/" + req.file.filename
-    })
-        .then((foodinfo) => {
-            if (foodinfo) {
-                res.status(200).json({ "message": "Food_successfully_added" });
-            } else {
-                res.status(200).json({ "message": "Food_entry_error" });
-            }
-        })
-        .catch((error) => {
-            res.status(200).json(error);
-        });
+foodRouter.post("/add", singleUpload.single('mAvatar'),foodController.addFood, (req, res) => {
+
+    // .then((foodinfo) => {
+    //     if (foodinfo) {
+    //         res.status(200).json({ "message": "Food_successfully_added" });
+    //     } else {
+    //         res.status(200).json({ "message": "Food_entry_error" });
+    //     }
+    // })
+    // .catch((error) => {
+    //     res.status(200).json(error);
+    // });
 });
 
 
@@ -143,18 +123,11 @@ foodRouter.post("/add", singleUpload.single('mAvatar'), (req, res) => {
 foodRouter.all("/update/:mid", singleUpload.single("mAvatar"), (req, res) => {
     if (req.method == 'PUT' || req.method == 'PATCH') {
         if (req.file) {
-            //image has been changed.
-            // res.status(200).json({"message":"image changed"});
             ImagePath = baseURL + "/uploads/" + req.file.filename;
-            //res.status(200).json(ImagePath);
         } else {
-            //image retain same
-            //res.status(200).json({"message":"image retains same"});
             foodsModel.findOne({ "food_id": req.params.mid }).exec()
                 .then((foodInfo) => {
-                    // res.status(200).json({"oldImage":foodInfo.food_image});
                     ImagePath = foodInfo.food_image;
-                    //res.status(200).json(ImagePath);
                 })
                 .catch((error) => {
                     res.status(403).json(error);
