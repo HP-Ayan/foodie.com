@@ -55,10 +55,11 @@ console.log(`Multer is working`);
 foodRouter.get("/all", (req, res) => {
     foodsModel.find().exec()
         .then((foodInfo) => {
-            if (foodInfo)
+            if (foodInfo.length > 0){
                 res.status(200).json(foodInfo);
-            else
+            }else{
                 res.status(200).json({ "message": "No food available" })
+            }
         })
         .catch((error) => {
             res.status(200).json(error);

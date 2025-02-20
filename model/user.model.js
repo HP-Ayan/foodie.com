@@ -35,7 +35,13 @@ const userSchema = mongoose.Schema({
     },
     "user_pass1": {
         type: String,
-        require: [true, "Passsword is mandetory"]
+        require: [true, "Passsword is mandetory"],
+        validate:{
+            validator:(elementValue)=>{
+                return /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,16}$/.test(elementValue);
+            },
+            message:props=>`${props.value} is not a valid password.`
+        }
     }
 },{versionKey:false});
 

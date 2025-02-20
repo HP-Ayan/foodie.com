@@ -17,8 +17,7 @@ app.use(express.urlencoded({extended:true}));
 app.use(express.json());
 
 const userRouter = require("./routes/user.route");
-app.use("/api/users",userRouter)
-
+app.use("/api/users",userRouter);
 const foodRouter = require("./routes/foods.routes");
 app.use('/api/foods',foodRouter);
 
