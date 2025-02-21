@@ -1,28 +1,32 @@
-const express = require('express');
-const mongoose = require('mongoose');
-require('dotenv').config();
+const express = require("express");
+const cors = require("cors");
+const env = require("dotenv").config();
 
-const userRoutes = require('./routes/user.route');
-const foodRoutes = require('./routes/foods.routes');
-const orderRoutes = require('./routes/order.routes');
+//define port and host globally
+var port = process.env.HOST_PORT || 3000;
+var host = process.env.HOST || "127.0.0.1";
 
 const app = express();
+app.use(cors());
+
+//creating server static resourse
+app.use(express.static("public"));
+console.log(`SSR is working on public folder`);
+
+app.use(express.urlencoded({extended:true}));
 app.use(express.json());
 
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}).then(() => console.log('MongoDB connected successfully')).catch(err => console.error('MongoDB connection error:', err));
+const userRouter = require("./routes/user.route");
+app.use("/api/users",userRouter);
+const foodRouter = require("./routes/foods.routes");
+app.use('/api/foods',foodRouter);
 
-app.use('/api/users', userRoutes);
-app.use('/api/foods', foodRoutes);
-app.use('/api/orders', orderRoutes);
 
-app.get('/', (req, res) => {
-  res.send('Welcome to the Food Ordering API');
+
+app.get("/",(req,res)=>{
+    res.send("<h1>Welcome to online food order application</h1>");
 });
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+app.listen(port,host,()=>{
+    console.log(`Express server has started at http://${host}:${port}/`);
+    
+})
