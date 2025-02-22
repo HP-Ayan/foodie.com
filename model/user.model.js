@@ -15,35 +15,31 @@ const userSchema = mongoose.Schema({
         type: String,
         unique: true,
         required: [true, "Phone number is required"],
-        validate:{
-            validator:(elementValue)=>{
+        validate: {
+            validator: (elementValue) => {
                 return /^[6-9]\d{9}$/.test(elementValue);
             },
-            message:props=>`${props.value} is not an Indian number.`
+            message: props => `${props.value} is not an Indian number.`
         }
     },
     "user_email": {
         type: String,
         unique: true,
         required: [true, "Email has to be provided"],
-        validate:{
-            validator:(elementValue)=>{
+        validate: {
+            validator: (elementValue) => {
                 return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(elementValue);
             },
-            message:props=>`${props.value} is not a valid email address.`
+            message: props => `${props.value} is not a valid email address.`
         }
     },
     "user_pass1": {
         type: String,
-        require: [true, "Passsword is mandetory"],
-        validate:{
-            validator:(elementValue)=>{
-                return /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,16}$/.test(elementValue);
-            },
-            message:props=>`${props.value} is not a valid password.`
-        }
+        required: [true, "Password is required"],
+        minlength: 6  // Ensures password is at least 6 characters before hashing
+
     }
-},{versionKey:false});
+}, { versionKey: false });
 
 module.exports = mongoose.model("usermodel", userSchema, "user");
 console.log(`User model is working`);
